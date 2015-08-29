@@ -1,3 +1,7 @@
+plugins {
+    id 'org.inferred.processors' version '1.0'
+}
+
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'idea'
@@ -6,10 +10,30 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    common
+}
+
 dependencies {
+    compile 'com.google.guava:guava:18.0'
     compile gradleApi()
+
+    processor 'com.google.auto.value:auto-value:1.1'
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.hamcrest:hamcrest-all:1.3'
     testCompile gradleTestKit()
+}
+
+// Write the plugin's classpath to a file to share with the tests
+task createClasspathManifest {
+    def outputDir = file("$buildDir/$name")
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
+    }
 }

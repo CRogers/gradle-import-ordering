@@ -1,6 +1,6 @@
 package com.github.crogers.importordering
-
 import groovy.transform.CompileStatic
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
 import org.junit.BeforeClass
@@ -24,8 +24,13 @@ public class ImportOrderingPluginShould {
     public static void buildProject() {
         GradleRunner.create()
             .withProjectDir(new File("."))
-            .withArguments("jar")
+            .withArguments("jar", "createClasspathManifest")
             .build()
+    }
+
+    @Before
+    public void printTempFolder() {
+        println projectDir.root
     }
 
     @Before
@@ -35,16 +40,22 @@ public class ImportOrderingPluginShould {
 
     @Test
     public void produce_a_single_entry_in_the_ipr_xml_with_a_single_entry() {
-        String buildDir = new File("build").absolutePath
+        File pluginClasspathManifest = new File("build/createClasspathManifest/plugin-classpath.txt")
+
+        String pluginClasspath = pluginClasspathManifest.readLines()
+                .collect { it.replace('\\', '\\\\') } // escape backslashes in Windows paths
+                .collect { "'$it'" }
+                .join(", ")
 
         buildFile << """
             buildscript {
                 dependencies {
-                    classpath files("${buildDir}/classes/main")
-                    classpath files("${buildDir}/resources/main")
+                    classpath files($pluginClasspath)
                 }
             }
+        """
 
+        buildFile << """
             apply plugin: 'idea'
             apply plugin: 'import-ordering'
 
@@ -53,14 +64,17 @@ public class ImportOrderingPluginShould {
             }
         """.stripIndent()
 
-        GradleRunner.create()
+        BuildResult result = GradleRunner.create()
             .withProjectDir(projectDir.getRoot())
             .withArguments("idea")
             .build()
 
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-        Document doc = documentBuilder.parse(new File(projectDir.getRoot(), "foo.ipr"))
+        println result.standardOutput
 
-        assertThat(doc, hasXPath("/some/crazy/xpath"))
+        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        File iprFile = new File(projectDir.getRoot(), "${projectDir.root.name}.ipr")
+        Document doc = documentBuilder.parse(iprFile)
+
+        assertThat(doc, hasXPath("/project/some/crazy/xpath"))
     }
 }
