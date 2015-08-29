@@ -1,26 +1,16 @@
 package com.github.crogers.importordering
-
+import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.XmlProvider
 import org.gradle.plugins.ide.idea.IdeaPlugin
 
+@CompileStatic
 public class ImportOrderingPlugin implements Plugin<Project> {
-
-    @Override
     public void apply(Project project) {
         project.getExtensions().create("importOrdering", ImportOrderingExtension.class);
 
-        project.getPlugins().withType(IdeaPlugin, { plugin ->
-            plugin.model.project.ipr.withXml { XmlProvider xml ->
-                NodeBuilder builder = new NodeBuilder()
-                Node res = builder.some {
-                    crazy {
-                        xpath()
-                    }
-                }
-                xml.asNode().append(res)
-            }
+        project.getPlugins().withType(IdeaPlugin, { IdeaPlugin plugin ->
+            new XmlWriter(plugin.model.project).writeXml();
         });
     }
 }
