@@ -3,6 +3,7 @@ package com.github.crogers.importordering
 import groovy.transform.CompileStatic
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -19,6 +20,14 @@ public class ImportOrderingPluginShould {
     @Rule public final TemporaryFolder projectDir = new TemporaryFolder();
     private File buildFile;
 
+    @BeforeClass
+    public static void buildProject() {
+        GradleRunner.create()
+            .withProjectDir(new File("."))
+            .withArguments("jar")
+            .build()
+    }
+
     @Before
     public void createBuildFile() throws IOException {
         buildFile = projectDir.newFile("build.gradle");
@@ -26,7 +35,16 @@ public class ImportOrderingPluginShould {
 
     @Test
     public void produce_a_single_entry_in_the_ipr_xml_with_a_single_entry() {
+        String buildDir = new File("build").absolutePath
+
         buildFile << """
+            buildscript {
+                dependencies {
+                    classpath files("${buildDir}/classes/main")
+                    classpath files("${buildDir}/resources/main")
+                }
+            }
+
             apply plugin: 'idea'
             apply plugin: 'import-ordering'
 
