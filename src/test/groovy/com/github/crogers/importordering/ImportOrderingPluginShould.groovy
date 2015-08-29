@@ -75,6 +75,10 @@ public class ImportOrderingPluginShould {
         File iprFile = new File(projectDir.getRoot(), "${projectDir.root.name}.ipr")
         Document doc = documentBuilder.parse(iprFile)
 
-        assertThat(doc, hasXPath("/project/some/crazy/xpath"))
+        assertThat(doc, hasXPath(
+                "/project/component[@name='ProjectCodeStyleSettingsManager']"
+                    + "/option[@name='PER_PROJECT_SETTINGS']/value"
+                        + "/option[@name='PACKAGES_TO_USE_IMPORT_ON_DEMAND']/value"
+                            + "/package[@name='foo.bar'][@withSubpackages='false'][@static='false']"));
     }
 }

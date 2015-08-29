@@ -13,11 +13,8 @@ public class XmlWriter {
     public void writeXml() {
         project.ipr.withXml { XmlProvider xml ->
             NodeBuilder builder = new NodeBuilder()
-            Node res = builder.some {
-                crazy {
-                    xpath()
-                }
-            }
+            Node res = builder.component(name: "ProjectCodeStyleSettingsManager")
+
             xml.asNode().append(res)
         }
     }
