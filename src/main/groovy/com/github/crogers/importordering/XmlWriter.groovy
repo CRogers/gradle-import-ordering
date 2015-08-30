@@ -14,7 +14,11 @@ public class XmlWriter {
             NodeBuilder builder = new NodeBuilder()
             Node res = builder.component(name: "ProjectCodeStyleSettingsManager") {
                 option(name: 'PER_PROJECT_SETTINGS') {
-                    value()
+                    value() {
+                        option(name: 'PACKAGES_TO_USE_IMPORT_ON_DEMAND') {
+                            value()
+                        }
+                    }
                 }
             }
 
