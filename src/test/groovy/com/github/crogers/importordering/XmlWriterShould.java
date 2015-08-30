@@ -85,9 +85,7 @@ public class XmlWriterShould {
 
     @Test public void
     have_the_class_count_to_use_star_import_option() {
-        Settings settings = mock(Settings.class);
-        when(settings.getImportLines()).thenReturn(ImportLines.from());
-        when(settings.getClassCountToImportStar()).thenReturn(Optional.of(23));
+        Settings settings = settingsWithClassCount(Optional.of(23));
 
         xmlProducedBy(settings)
             .shouldHaveXPath(PROJECT_OPTION_XPATH + "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='23']");
@@ -95,12 +93,17 @@ public class XmlWriterShould {
 
     @Test public void
     not_have_the_class_count_to_use_star_import_options_if_it_has_not_been_specified() {
-        Settings settings = mock(Settings.class);
-        when(settings.getImportLines()).thenReturn(ImportLines.from());
-        when(settings.getClassCountToImportStar()).thenReturn(Optional.empty());
+        Settings settings = settingsWithClassCount(Optional.empty());
 
         xmlProducedBy(settings)
             .shouldNotHaveXPath(PROJECT_OPTION_XPATH + "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND']");
+    }
+
+    private Settings settingsWithClassCount(Optional<Integer> value) {
+        Settings settings = mock(Settings.class);
+        when(settings.getImportLines()).thenReturn(ImportLines.from());
+        when(settings.getClassCountToImportStar()).thenReturn(value);
+        return settings;
     }
 
     private String packageWithName(String name) {
