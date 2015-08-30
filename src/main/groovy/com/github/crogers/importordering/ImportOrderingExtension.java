@@ -1,9 +1,8 @@
 package com.github.crogers.importordering;
 
-import java.util.Collections;
-import java.util.List;
-
 import com.google.common.collect.Lists;
+
+import java.util.List;
 
 public class ImportOrderingExtension {
     private final List<ImportLine> importLines = Lists.newArrayList();
@@ -12,7 +11,7 @@ public class ImportOrderingExtension {
         importLines.add(ImportLine.from(pattern));
     }
 
-    public List<ImportLine> getImportLines() {
-        return Collections.unmodifiableList(importLines);
+    public ImportLines getImportLines() {
+        return ImportLines.from(importLines);
     }
 }

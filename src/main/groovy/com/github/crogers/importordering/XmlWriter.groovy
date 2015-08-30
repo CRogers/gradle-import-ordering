@@ -1,4 +1,6 @@
 package com.github.crogers.importordering
+
+import com.google.common.collect.Iterables
 import org.gradle.api.XmlProvider
 import org.gradle.plugins.ide.api.XmlFileContentMerger
 
@@ -9,14 +11,19 @@ public class XmlWriter {
         this.xmlFileContentMerger = xmlFileContentMerger
     }
 
-    public void writeXml() {
+    public void writeXml(ImportLines importLines) {
         xmlFileContentMerger.withXml { XmlProvider xml ->
             NodeBuilder builder = new NodeBuilder()
             Node res = builder.component(name: "ProjectCodeStyleSettingsManager") {
                 option(name: 'PER_PROJECT_SETTINGS') {
                     value() {
                         option(name: 'PACKAGES_TO_USE_IMPORT_ON_DEMAND') {
-                            value()
+                            value() {
+                                if (importLines.size() > 0) {
+                                    String name = Iterables.getOnlyElement(importLines).asString()
+                                    'package'(name: name, withSubpackages: false, static: false)
+                                }
+                            }
                         }
                     }
                 }

@@ -10,7 +10,7 @@ public class ImportOrderingPlugin implements Plugin<Project> {
         project.getExtensions().create("importOrdering", ImportOrderingExtension.class);
 
         project.getPlugins().withType(IdeaPlugin, { IdeaPlugin plugin ->
-            new XmlWriter(plugin.model.project.ipr).writeXml();
+            new XmlWriter(plugin.model.project.ipr).writeXml(ImportLines.noImportLines());
         });
     }
 }

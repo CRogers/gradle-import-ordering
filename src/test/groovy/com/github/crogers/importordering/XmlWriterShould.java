@@ -13,43 +13,69 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 
+import static com.github.crogers.importordering.ImportLines.noImportLines;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasXPath;
 
 public class XmlWriterShould {
     private static final String COMPONENT_XPATH = "/project/component[@name='ProjectCodeStyleSettingsManager']";
-    private static final String OPTION_XPATH = COMPONENT_XPATH + "/option[@name='PER_PROJECT_SETTINGS']/value";
-
-    private final XmlFileContentMerger xmlFileContentMerger = new XmlFileContentMerger(new XmlTransformer());
-    private final XmlWriter xmlWriter = new XmlWriter(xmlFileContentMerger);
+    private static final String PROJECT_OPTION_XPATH = COMPONENT_XPATH + "/option[@name='PER_PROJECT_SETTINGS']/value";
+    public static final String PACKAGE_OPTION_XPATH = PROJECT_OPTION_XPATH + "/option[@name='PACKAGES_TO_USE_IMPORT_ON_DEMAND']/value";
 
     @Test public void
     produce_a_component_with_a_name_of_ProjectCodeStyleSettingsManager() throws ParserConfigurationException, IOException, SAXException {
-        assertThatXmlHasXPath(COMPONENT_XPATH);
+        xmlProducedBy(noImportLines())
+                .shouldHaveXPath(COMPONENT_XPATH);
     }
 
     @Test public void
     produce_a_component_containing_an_option_with_a_name_of_PER_PROJECT_SETTINGS() {
-        assertThatXmlHasXPath(OPTION_XPATH);
+        xmlProducedBy(noImportLines())
+                .shouldHaveXPath(PROJECT_OPTION_XPATH);
     }
 
     @Test public void
     produce_a_component_containing_a_suboption_with_a_name_of_PACKAGES_TO_USE_IMPORT_ON_DEMAND() {
-        assertThatXmlHasXPath(OPTION_XPATH + "/option[@name='PACKAGES_TO_USE_IMPORT_ON_DEMAND']/value");
+        xmlProducedBy(noImportLines())
+                .shouldHaveXPath(PACKAGE_OPTION_XPATH);
     }
 
-    private void assertThatXmlHasXPath(String xPath) {
-        xmlWriter.writeXml();
-        String result = xmlFileContentMerger.getXmlTransformer().transform("<project/>");
+    @Test public void
+    produce_a_package_entry_from_an_import_line() {
+        xmlProducedBy(ImportLines.from(ImportLine.from("foo.bar")))
+                .shouldHaveXPath(packageWithName("foo.bar"));
+    }
 
-        try {
-            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = documentBuilder.parse(new ReaderInputStream(new StringReader(result)));
+    private String packageWithName(String name) {
+        return PACKAGE_OPTION_XPATH + "/package[@name='" + name +"'][@withSubpackages='false'][@static='false']";
+    }
 
+    private static class XmlProducedBy {
+        private final Document xmlDocument;
+
+        public XmlProducedBy(ImportLines importLines) {
+            XmlFileContentMerger xmlFileContentMerger = new XmlFileContentMerger(new XmlTransformer());
+            XmlWriter xmlWriter = new XmlWriter(xmlFileContentMerger);
+
+            xmlWriter.writeXml(importLines);
+            String result = xmlFileContentMerger.getXmlTransformer().transform("<project/>");
             System.out.println(result);
-            assertThat(doc, hasXPath(xPath));
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
+
+            try {
+                DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                this.xmlDocument = documentBuilder.parse(new ReaderInputStream(new StringReader(result)));
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+                throw new RuntimeException(e);
+            }
         }
+
+        public XmlProducedBy shouldHaveXPath(String xPath) {
+            assertThat(xmlDocument, hasXPath(xPath));
+            return this;
+        }
+    }
+
+    private XmlProducedBy xmlProducedBy(ImportLines importLines) {
+        return new XmlProducedBy(importLines);
     }
 }
