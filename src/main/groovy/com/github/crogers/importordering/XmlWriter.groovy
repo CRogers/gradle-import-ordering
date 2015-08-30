@@ -10,7 +10,7 @@ public class XmlWriter {
         this.xmlFileContentMerger = xmlFileContentMerger
     }
 
-    public void writeXml(ImportLines importLines) {
+    public void writeXml(Settings settings) {
         xmlFileContentMerger.withXml { XmlProvider xml ->
             NodeBuilder builder = new NodeBuilder()
             Node res = builder.component(name: "ProjectCodeStyleSettingsManager") {
@@ -18,7 +18,7 @@ public class XmlWriter {
                     value() {
                         option(name: 'PACKAGES_TO_USE_IMPORT_ON_DEMAND') {
                             value() {
-                                for (ImportLine importLine : importLines) {
+                                for (ImportLine importLine : settings.importLines) {
                                     'package'(name: importLine.asString(), withSubpackages: importLine.withSubpackages().asBoolean(), static: importLine.static)
                                 }
                             }

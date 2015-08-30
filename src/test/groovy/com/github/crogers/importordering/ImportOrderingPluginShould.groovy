@@ -19,6 +19,7 @@ import static org.xmlmatchers.xpath.XpathReturnType.returningAnXmlNode
 
 @CompileStatic
 public class ImportOrderingPluginShould {
+    public static final String PER_PROJECT_SETTINGS_XPATH = "/project/component[@name='ProjectCodeStyleSettingsManager']/option[@name='PER_PROJECT_SETTINGS']/value"
     @Rule public final TemporaryFolder projectDir = new TemporaryFolder();
     private File buildFile;
 
@@ -156,6 +157,22 @@ public class ImportOrderingPluginShould {
         """)
     }
 
+    // <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="999" />
+    // <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="997" />
+
+    @Test
+    public void set_the_class_count_to_use_import_on_demand() {
+        addToBuildFile """
+            importOrdering {
+                classCountToImportStar 29
+            }
+        """
+
+        buildIdeaProject()
+
+        assertThat(the(iprFile()), hasXPath(PER_PROJECT_SETTINGS_XPATH + "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='29']"))
+    }
+
     public void addToBuildFile(String text) {
         buildFile << text.stripIndent()
     }
@@ -172,9 +189,7 @@ public class ImportOrderingPluginShould {
     private void assertThatIprHasPackages(String packages) {
         Source packageXml = xml("<value>${packages}</value>")
         assertThat(the(iprFile()), hasXPathReturningAnXmlNode(
-                "/project/component[@name='ProjectCodeStyleSettingsManager']"
-                        + "/option[@name='PER_PROJECT_SETTINGS']/value"
-                        + "/option[@name='PACKAGES_TO_USE_IMPORT_ON_DEMAND']/value", equivalentTo(packageXml)));
+                PER_PROJECT_SETTINGS_XPATH + "/option[@name='PACKAGES_TO_USE_IMPORT_ON_DEMAND']/value", equivalentTo(packageXml)));
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)

@@ -3,9 +3,11 @@ package com.github.crogers.importordering;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.Optional;
 
-public class ImportOrderingExtension {
+public class ImportOrderingExtension implements Settings {
     private final List<ImportLine> importLines = Lists.newArrayList();
+    private Optional<Integer> classCountToImportStar;
 
     public void importLine(String pattern) {
         importLines.add(ImportLine.instance(pattern));
@@ -27,6 +29,16 @@ public class ImportOrderingExtension {
         return WithSubpackages.WITHOUT_SUBPACKAGES;
     }
 
+    public void classCountToImportStar(int classCountToImportStar) {
+        this.classCountToImportStar = Optional.of(classCountToImportStar);
+    }
+
+    @Override
+    public Optional<Integer> getClassCountToImportStar() {
+        return classCountToImportStar;
+    }
+
+    @Override
     public ImportLines getImportLines() {
         return ImportLines.from(importLines);
     }

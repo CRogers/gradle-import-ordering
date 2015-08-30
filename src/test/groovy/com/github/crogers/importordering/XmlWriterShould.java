@@ -13,6 +13,8 @@ import java.io.IOException;
 import static com.github.crogers.importordering.ImportLines.importLines;
 import static com.github.crogers.importordering.ImportLines.noImportLines;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.xmlmatchers.XmlMatchers.equivalentTo;
 import static org.xmlmatchers.XmlMatchers.hasXPath;
 import static org.xmlmatchers.transform.XmlConverters.xml;
@@ -79,6 +81,12 @@ public class XmlWriterShould {
             );
     }
 
+    @Test public void
+    have_the_class_count_to_use_star_import_option() {
+        Settings settings = mock(Settings.class);
+
+    }
+
     private String packageWithName(String name) {
         return PACKAGE_OPTION_XPATH + "/package[@name='" + name +"'][@withSubpackages='true'][@static='false']";
     }
@@ -86,7 +94,7 @@ public class XmlWriterShould {
     private static class XmlProducedBy {
         private final Source xmlDocument;
 
-        public XmlProducedBy(ImportLines importLines) {
+        public XmlProducedBy(Settings importLines) {
             XmlFileContentMerger xmlFileContentMerger = new XmlFileContentMerger(new XmlTransformer());
             XmlWriter xmlWriter = new XmlWriter(xmlFileContentMerger);
 
@@ -109,6 +117,8 @@ public class XmlWriterShould {
     }
 
     private XmlProducedBy xmlProducedBy(ImportLines importLines) {
-        return new XmlProducedBy(importLines);
+        Settings settings = mock(Settings.class);
+        when(settings.getImportLines()).thenReturn(importLines);
+        return new XmlProducedBy(settings);
     }
 }
