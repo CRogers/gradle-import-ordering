@@ -157,9 +157,6 @@ public class ImportOrderingPluginShould {
         """)
     }
 
-    // <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="999" />
-    // <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="997" />
-
     @Test
     public void set_the_class_count_to_use_import_on_demand() {
         addToBuildFile """
@@ -171,6 +168,19 @@ public class ImportOrderingPluginShould {
         buildIdeaProject()
 
         assertThat(the(iprFile()), hasXPath(PER_PROJECT_SETTINGS_XPATH + "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='29']"))
+    }
+
+    @Test
+    public void set_the_name_count_to_use_import_on_demand() {
+        addToBuildFile """
+            importOrdering {
+                nameCountToStaticImportStar 31
+            }
+        """
+
+        buildIdeaProject()
+
+        assertThat(the(iprFile()), hasXPath(PER_PROJECT_SETTINGS_XPATH + "/option[@name='NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='31']"))
     }
 
     public void addToBuildFile(String text) {

@@ -99,10 +99,23 @@ public class XmlWriterShould {
             .shouldNotHaveXPath(PROJECT_OPTION_XPATH + "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND']");
     }
 
+    @Test public void
+    have_the_name_count_to_use_star_import_option() {
+        Settings settings = settingsWithNameCount(Optional.of(33));
+
+        xmlProducedBy(settings)
+            .shouldHaveXPath(PROJECT_OPTION_XPATH + "/option[@name='NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='33']");
+    }
+
     private Settings settingsWithClassCount(Optional<Integer> value) {
-        Settings settings = mock(Settings.class);
-        when(settings.getImportLines()).thenReturn(ImportLines.from());
+        Settings settings = defaultSettings();
         when(settings.getClassCountToImportStar()).thenReturn(value);
+        return settings;
+    }
+
+    private Settings settingsWithNameCount(Optional<Integer> value) {
+        Settings settings = defaultSettings();
+        when(settings.getNameCountToStaticImportStar()).thenReturn(value);
         return settings;
     }
 
@@ -140,13 +153,20 @@ public class XmlWriterShould {
     }
 
     private XmlProducedBy xmlProducedBy(ImportLines importLines) {
-        Settings settings = mock(Settings.class);
+        Settings settings = defaultSettings();
         when(settings.getImportLines()).thenReturn(importLines);
-        when(settings.getClassCountToImportStar()).thenReturn(Optional.empty());
         return xmlProducedBy(settings);
     }
 
     private XmlProducedBy xmlProducedBy(Settings settings) {
         return new XmlProducedBy(settings);
+    }
+
+    private Settings defaultSettings() {
+        Settings settings = mock(Settings.class);
+        when(settings.getImportLines()).thenReturn(ImportLines.from());
+        when(settings.getClassCountToImportStar()).thenReturn(Optional.empty());
+        when(settings.getNameCountToStaticImportStar()).thenReturn(Optional.empty());
+        return settings;
     }
 }

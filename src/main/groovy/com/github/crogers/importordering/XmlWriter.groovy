@@ -19,6 +19,9 @@ public class XmlWriter {
                         if  (settings.classCountToImportStar.present) {
                             option(name: 'CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND', value: settings.classCountToImportStar.get())
                         }
+                        if  (settings.nameCountToStaticImportStar.present) {
+                            option(name: 'NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND', value: settings.nameCountToStaticImportStar.get())
+                        }
                         option(name: 'PACKAGES_TO_USE_IMPORT_ON_DEMAND') {
                             value() {
                                 for (ImportLine importLine : settings.importLines) {

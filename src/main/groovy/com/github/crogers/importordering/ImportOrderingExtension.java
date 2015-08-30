@@ -8,6 +8,7 @@ import java.util.Optional;
 public class ImportOrderingExtension implements Settings {
     private final List<ImportLine> importLines = Lists.newArrayList();
     private Optional<Integer> classCountToImportStar = Optional.empty();
+    private Optional<Integer> nameCountToStaticImportStar = Optional.empty();
 
     public void importLine(String pattern) {
         importLines.add(ImportLine.instance(pattern));
@@ -33,13 +34,22 @@ public class ImportOrderingExtension implements Settings {
         this.classCountToImportStar = Optional.of(classCountToImportStar);
     }
 
+    public void nameCountToStaticImportStar(int nameCountToStaticImportStar) {
+        this.nameCountToStaticImportStar = Optional.of(nameCountToStaticImportStar);
+    }
+
+    @Override
+    public ImportLines getImportLines() {
+        return ImportLines.from(importLines);
+    }
+
     @Override
     public Optional<Integer> getClassCountToImportStar() {
         return classCountToImportStar;
     }
 
     @Override
-    public ImportLines getImportLines() {
-        return ImportLines.from(importLines);
+    public Optional<Integer> getNameCountToStaticImportStar() {
+        return nameCountToStaticImportStar;
     }
 }
