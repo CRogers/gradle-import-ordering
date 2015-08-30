@@ -9,6 +9,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.github.crogers.importordering.ImportLines.importLines;
 import static com.github.crogers.importordering.ImportLines.noImportLines;
@@ -84,7 +85,11 @@ public class XmlWriterShould {
     @Test public void
     have_the_class_count_to_use_star_import_option() {
         Settings settings = mock(Settings.class);
+        when(settings.getImportLines()).thenReturn(ImportLines.from());
+        when(settings.getClassCountToImportStar()).thenReturn(Optional.of(23));
 
+        xmlProducedBy(settings)
+            .shouldHaveXPath(PROJECT_OPTION_XPATH + "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='23']");
     }
 
     private String packageWithName(String name) {
@@ -100,7 +105,6 @@ public class XmlWriterShould {
 
             xmlWriter.writeXml(importLines);
             String result = xmlFileContentMerger.getXmlTransformer().transform("<project/>");
-            System.out.println(result);
 
             this.xmlDocument = xml(result);
         }
@@ -119,6 +123,11 @@ public class XmlWriterShould {
     private XmlProducedBy xmlProducedBy(ImportLines importLines) {
         Settings settings = mock(Settings.class);
         when(settings.getImportLines()).thenReturn(importLines);
+        when(settings.getClassCountToImportStar()).thenReturn(Optional.empty());
+        return xmlProducedBy(settings);
+    }
+
+    private XmlProducedBy xmlProducedBy(Settings settings) {
         return new XmlProducedBy(settings);
     }
 }

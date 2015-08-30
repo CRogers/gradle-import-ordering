@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class ImportOrderingExtension implements Settings {
     private final List<ImportLine> importLines = Lists.newArrayList();
-    private Optional<Integer> classCountToImportStar;
+    private Optional<Integer> classCountToImportStar = Optional.empty();
 
     public void importLine(String pattern) {
         importLines.add(ImportLine.instance(pattern));
