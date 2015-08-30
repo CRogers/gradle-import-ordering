@@ -38,8 +38,8 @@ public class ImportOrderingPluginShould {
         buildFile = projectDir.newFile("build.gradle");
     }
 
-    @Test
-    public void produce_a_single_entry_in_the_ipr_xml_with_a_single_entry() {
+    @Before
+    public void addClasspathToBuildfile() {
         File pluginClasspathManifest = new File("build/createClasspathManifest/plugin-classpath.txt")
 
         String pluginClasspath = pluginClasspathManifest.readLines()
@@ -54,13 +54,16 @@ public class ImportOrderingPluginShould {
                 }
             }
         """
+    }
 
+    @Test
+    public void produce_a_single_entry_in_the_ipr_xml_with_a_single_entry() {
         buildFile << """
             apply plugin: 'idea'
             apply plugin: 'import-ordering'
 
             importOrdering {
-                importLine "foo.bar"
+                importLine 'foo.bar'
             }
         """.stripIndent()
 
