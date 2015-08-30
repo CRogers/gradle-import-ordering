@@ -65,7 +65,7 @@ public class XmlWriterShould {
 
     @Test public void
     produce_a_static_package_entry() {
-        xmlProducedBy(ImportLines.from(ImportLine.from("static.foo", true)))
+        xmlProducedBy(ImportLines.from(ImportLine.fromStatic("static.foo")))
             .shouldHavePackageXmlEquivalentTo(
                 "<package name='static.foo' withSubpackages='false' static='true'/>"
             );

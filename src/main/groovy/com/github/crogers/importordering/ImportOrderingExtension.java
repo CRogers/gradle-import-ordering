@@ -12,7 +12,7 @@ public class ImportOrderingExtension {
     }
 
     public void importStatic(String pattern) {
-        importLines.add(ImportLine.from(pattern, true));
+        importLines.add(ImportLine.fromStatic(pattern));
     }
 
     public ImportLines getImportLines() {
