@@ -122,6 +122,19 @@ public class ImportOrderingPluginShould {
         assertThatIprHasPackages("<package name='javax.awt' withSubpackages='false' static='false'/>")
     }
 
+    @Test
+    public void produce_a_static_entry_without_subpackages() {
+        addToBuildFile """
+            importOrdering {
+                importStatic withoutSubpackages(), 'bat.man'
+            }
+        """
+
+        buildIdeaProject()
+
+        assertThatIprHasPackages("<package name='bat.man' withSubpackages='false' static='true'/>")
+    }
+
     public void addToBuildFile(String text) {
         buildFile << text.stripIndent()
     }

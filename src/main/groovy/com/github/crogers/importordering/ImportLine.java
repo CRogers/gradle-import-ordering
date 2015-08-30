@@ -17,6 +17,10 @@ public abstract class ImportLine {
     }
 
     public static ImportLine fromStatic(String importLine) {
-        return new AutoValue_ImportLine(importLine, WithSubpackages.WITH_SUBPACKAGES, true);
+        return fromStatic(importLine, WithSubpackages.WITH_SUBPACKAGES);
+    }
+
+    public static ImportLine fromStatic(String importLine, WithSubpackages withSubpackages) {
+        return new AutoValue_ImportLine(importLine, withSubpackages, true);
     }
 }
