@@ -51,7 +51,7 @@ public class ImportOrderingPluginShould {
                 .collect { "'$it'" }
                 .join(", ")
 
-        buildFile << """
+        addToBuildFile """
             buildscript {
                 dependencies {
                     classpath files($pluginClasspath)
@@ -60,16 +60,21 @@ public class ImportOrderingPluginShould {
         """
     }
 
-    @Test
-    public void produce_a_single_entry_in_the_ipr_xml_with_a_single_entry() {
-        buildFile << """
+    @Before
+    public void applyPlugins() {
+        addToBuildFile """
             apply plugin: 'idea'
             apply plugin: 'import-ordering'
+        """
+    }
 
+    @Test
+    public void produce_a_single_entry_in_the_ipr_xml_with_a_single_entry() {
+        addToBuildFile """
             importOrdering {
                 importLine 'foo.bar'
             }
-        """.stripIndent()
+        """
 
         buildIdeaProject()
 
@@ -78,15 +83,12 @@ public class ImportOrderingPluginShould {
 
     @Test
     public void produce_a_two_entries_in_the_ipr_xml_with_two_entries() {
-        buildFile << """
-            apply plugin: 'idea'
-            apply plugin: 'import-ordering'
-
+        addToBuildFile """
             importOrdering {
                 importLine 'foo.bar'
                 importLine 'baz.quux'
             }
-        """.stripIndent()
+        """
 
         buildIdeaProject()
 
@@ -94,6 +96,23 @@ public class ImportOrderingPluginShould {
             <package name='foo.bar' withSubpackages='false' static='false'/>
             <package name='baz.quux' withSubpackages='false' static='false'/>
         """);
+    }
+
+    @Test
+    public void produce_a_static_entry_in_the_xml() {
+        addToBuildFile """
+            importOrdering {
+                importStatic 'some.static.thing'
+            }
+        """
+
+        buildIdeaProject()
+
+        assertThatIprHasPackages("<package name='some.static.thing' withSubpackages='false' static='true'/>")
+    }
+
+    public void addToBuildFile(String text) {
+        buildFile << text.stripIndent()
     }
 
     private void buildIdeaProject() {

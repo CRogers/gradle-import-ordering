@@ -7,13 +7,16 @@ import javax.annotation.Generated;
 final class AutoValue_ImportLine extends ImportLine {
 
   private final String asString;
+  private final boolean isStatic;
 
   AutoValue_ImportLine(
-      String asString) {
+      String asString,
+      boolean isStatic) {
     if (asString == null) {
       throw new NullPointerException("Null asString");
     }
     this.asString = asString;
+    this.isStatic = isStatic;
   }
 
   @Override
@@ -22,9 +25,15 @@ final class AutoValue_ImportLine extends ImportLine {
   }
 
   @Override
+  public boolean isStatic() {
+    return isStatic;
+  }
+
+  @Override
   public String toString() {
     return "ImportLine{"
-        + "asString=" + asString
+        + "asString=" + asString + ", "
+        + "isStatic=" + isStatic
         + "}";
   }
 
@@ -35,7 +44,8 @@ final class AutoValue_ImportLine extends ImportLine {
     }
     if (o instanceof ImportLine) {
       ImportLine that = (ImportLine) o;
-      return (this.asString.equals(that.asString()));
+      return (this.asString.equals(that.asString()))
+           && (this.isStatic == that.isStatic());
     }
     return false;
   }
@@ -45,6 +55,8 @@ final class AutoValue_ImportLine extends ImportLine {
     int h = 1;
     h *= 1000003;
     h ^= asString.hashCode();
+    h *= 1000003;
+    h ^= isStatic ? 1231 : 1237;
     return h;
   }
 

@@ -63,6 +63,14 @@ public class XmlWriterShould {
             );
     }
 
+    @Test public void
+    produce_a_static_package_entry() {
+        xmlProducedBy(ImportLines.from(ImportLine.from("static.foo", true)))
+            .shouldHavePackageXmlEquivalentTo(
+                "<package name='static.foo' withSubpackages='false' static='true'/>"
+            );
+    }
+
     private String packageWithName(String name) {
         return PACKAGE_OPTION_XPATH + "/package[@name='" + name +"'][@withSubpackages='false'][@static='false']";
     }
