@@ -49,7 +49,9 @@ public class XmlWriterShould {
 
     @Test public void
     produce_two_packages_entires_from_two_import_lines() {
-        //xmlProducedBy()
+        xmlProducedBy(importLines("foo.bar", "baz.quux"))
+                .shouldHaveXPath(packageWithName("foo.bar"))
+                .shouldHaveXPath(packageWithName("baz.quux"));
     }
 
     private String packageWithName(String name) {

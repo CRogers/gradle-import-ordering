@@ -1,6 +1,5 @@
 package com.github.crogers.importordering
 
-import com.google.common.collect.Iterables
 import org.gradle.api.XmlProvider
 import org.gradle.plugins.ide.api.XmlFileContentMerger
 
@@ -19,9 +18,8 @@ public class XmlWriter {
                     value() {
                         option(name: 'PACKAGES_TO_USE_IMPORT_ON_DEMAND') {
                             value() {
-                                if (importLines.size() > 0) {
-                                    String name = Iterables.getOnlyElement(importLines).asString()
-                                    'package'(name: name, withSubpackages: false, static: false)
+                                for (ImportLine importLine : importLines) {
+                                    'package'(name: importLine.asString(), withSubpackages: false, static: false)
                                 }
                             }
                         }
