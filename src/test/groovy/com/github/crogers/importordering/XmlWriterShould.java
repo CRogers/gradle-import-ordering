@@ -1,22 +1,22 @@
 package com.github.crogers.importordering;
 
-import org.apache.tools.ant.util.ReaderInputStream;
+import com.google.common.base.Joiner;
 import org.gradle.internal.xml.XmlTransformer;
 import org.gradle.plugins.ide.api.XmlFileContentMerger;
 import org.junit.Test;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
 import java.io.IOException;
-import java.io.StringReader;
 
 import static com.github.crogers.importordering.ImportLines.importLines;
 import static com.github.crogers.importordering.ImportLines.noImportLines;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasXPath;
+import static org.xmlmatchers.XmlMatchers.equivalentTo;
+import static org.xmlmatchers.XmlMatchers.hasXPath;
+import static org.xmlmatchers.transform.XmlConverters.xml;
+import static org.xmlmatchers.xpath.XpathReturnType.returningAnXmlNode;
 
 public class XmlWriterShould {
     private static final String COMPONENT_XPATH = "/project/component[@name='ProjectCodeStyleSettingsManager']";
@@ -48,10 +48,19 @@ public class XmlWriterShould {
     }
 
     @Test public void
-    produce_two_packages_entires_from_two_import_lines() {
+    produce_two_packages_entries_from_two_import_lines() {
         xmlProducedBy(importLines("foo.bar", "baz.quux"))
                 .shouldHaveXPath(packageWithName("foo.bar"))
                 .shouldHaveXPath(packageWithName("baz.quux"));
+    }
+
+    @Test public void
+    produce_two_packages_entries_from_two_import_lines_in_the_right_order() {
+        xmlProducedBy(importLines("foo.bar", "baz.quux"))
+            .shouldHavePackageXmlEquivalentTo(
+                "<package name='foo.bar' withSubpackages='false' static='false'/>",
+                "<package name='baz.quux' withSubpackages='false' static='false'/>"
+            );
     }
 
     private String packageWithName(String name) {
@@ -59,7 +68,7 @@ public class XmlWriterShould {
     }
 
     private static class XmlProducedBy {
-        private final Document xmlDocument;
+        private final Source xmlDocument;
 
         public XmlProducedBy(ImportLines importLines) {
             XmlFileContentMerger xmlFileContentMerger = new XmlFileContentMerger(new XmlTransformer());
@@ -69,17 +78,17 @@ public class XmlWriterShould {
             String result = xmlFileContentMerger.getXmlTransformer().transform("<project/>");
             System.out.println(result);
 
-            try {
-                DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                this.xmlDocument = documentBuilder.parse(new ReaderInputStream(new StringReader(result)));
-            } catch (ParserConfigurationException | SAXException | IOException e) {
-                throw new RuntimeException(e);
-            }
+            this.xmlDocument = xml(result);
         }
 
         public XmlProducedBy shouldHaveXPath(String xPath) {
             assertThat(xmlDocument, hasXPath(xPath));
             return this;
+        }
+
+        public void shouldHavePackageXmlEquivalentTo(String... packageXmls) {
+            String packageXml = Joiner.on("").join(packageXmls);
+            assertThat(xmlDocument, hasXPath(PACKAGE_OPTION_XPATH, returningAnXmlNode(), equivalentTo(xml("<value>" + packageXml + "</value>"))));
         }
     }
 
