@@ -60,7 +60,7 @@ public class ImportOrderingPluginShould {
             apply plugin: 'import-ordering'
 
             importOrdering {
-                importLine "foo.bar.*"
+                importLine "foo.bar"
             }
         """.stripIndent()
 
@@ -74,6 +74,8 @@ public class ImportOrderingPluginShould {
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         File iprFile = new File(projectDir.getRoot(), "${projectDir.root.name}.ipr")
         Document doc = documentBuilder.parse(iprFile)
+
+        println iprFile.readLines().join("\n")
 
         assertThat(doc, hasXPath(
                 "/project/component[@name='ProjectCodeStyleSettingsManager']"
