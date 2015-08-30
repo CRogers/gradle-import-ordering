@@ -11,8 +11,16 @@ public class ImportOrderingExtension {
         importLines.add(ImportLine.instance(pattern));
     }
 
+    public void importLine(WithSubpackages withSubpackages, String pattern) {
+        importLines.add(ImportLine.instance(pattern, withSubpackages));
+    }
+
     public void importStatic(String pattern) {
         importLines.add(ImportLine.fromStatic(pattern));
+    }
+
+    public WithSubpackages withoutSubpackages() {
+        return WithSubpackages.WITHOUT_SUBPACKAGES;
     }
 
     public ImportLines getImportLines() {

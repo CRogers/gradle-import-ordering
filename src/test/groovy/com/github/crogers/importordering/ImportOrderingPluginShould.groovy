@@ -110,7 +110,6 @@ public class ImportOrderingPluginShould {
     }
 
     @Test
-    @Ignore
     public void produce_an_entry_without_subpackages() {
         addToBuildFile """
             importOrdering {
@@ -120,7 +119,7 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThatIprHasPackages("<package name='javax.awt' withSubpackages='false', static='false'/>")
+        assertThatIprHasPackages("<package name='javax.awt' withSubpackages='false' static='false'/>")
     }
 
     public void addToBuildFile(String text) {

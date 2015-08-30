@@ -19,7 +19,7 @@ public class XmlWriter {
                         option(name: 'PACKAGES_TO_USE_IMPORT_ON_DEMAND') {
                             value() {
                                 for (ImportLine importLine : importLines) {
-                                    'package'(name: importLine.asString(), withSubpackages: true, static: importLine.static)
+                                    'package'(name: importLine.asString(), withSubpackages: importLine.withSubpackages().asBoolean(), static: importLine.static)
                                 }
                             }
                         }

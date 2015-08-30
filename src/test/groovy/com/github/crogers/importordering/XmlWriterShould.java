@@ -71,6 +71,14 @@ public class XmlWriterShould {
             );
     }
 
+    @Test public void
+    produce_an_entry_without_subpackages() {
+        xmlProducedBy(ImportLines.from(ImportLine.instance("nah.bah", WithSubpackages.WITHOUT_SUBPACKAGES)))
+            .shouldHavePackageXmlEquivalentTo(
+                "<package name='nah.bah' withSubpackages='false' static='false'/>"
+            );
+    }
+
     private String packageWithName(String name) {
         return PACKAGE_OPTION_XPATH + "/package[@name='" + name +"'][@withSubpackages='true'][@static='false']";
     }
