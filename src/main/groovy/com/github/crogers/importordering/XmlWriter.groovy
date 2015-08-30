@@ -12,7 +12,11 @@ public class XmlWriter {
     public void writeXml() {
         xmlFileContentMerger.withXml { XmlProvider xml ->
             NodeBuilder builder = new NodeBuilder()
-            Node res = builder.component(name: "ProjectCodeStyleSettingsManager")
+            Node res = builder.component(name: "ProjectCodeStyleSettingsManager") {
+                option(name: 'PER_PROJECT_SETTINGS') {
+                    value()
+                }
+            }
 
             xml.asNode().append(res)
         }
