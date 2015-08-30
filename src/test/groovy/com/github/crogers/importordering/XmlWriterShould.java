@@ -14,6 +14,7 @@ import java.util.Optional;
 import static com.github.crogers.importordering.ImportLines.importLines;
 import static com.github.crogers.importordering.ImportLines.noImportLines;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.xmlmatchers.XmlMatchers.equivalentTo;
@@ -92,6 +93,16 @@ public class XmlWriterShould {
             .shouldHaveXPath(PROJECT_OPTION_XPATH + "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='23']");
     }
 
+    @Test public void
+    not_have_the_class_count_to_use_star_import_options_if_it_has_not_been_specified() {
+        Settings settings = mock(Settings.class);
+        when(settings.getImportLines()).thenReturn(ImportLines.from());
+        when(settings.getClassCountToImportStar()).thenReturn(Optional.empty());
+
+        xmlProducedBy(settings)
+            .shouldNotHaveXPath(PROJECT_OPTION_XPATH + "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND']");
+    }
+
     private String packageWithName(String name) {
         return PACKAGE_OPTION_XPATH + "/package[@name='" + name +"'][@withSubpackages='true'][@static='false']";
     }
@@ -111,6 +122,11 @@ public class XmlWriterShould {
 
         public XmlProducedBy shouldHaveXPath(String xPath) {
             assertThat(xmlDocument, hasXPath(xPath));
+            return this;
+        }
+
+        public XmlProducedBy shouldNotHaveXPath(String xPath) {
+            assertThat(xmlDocument, not(hasXPath(xPath)));
             return this;
         }
 

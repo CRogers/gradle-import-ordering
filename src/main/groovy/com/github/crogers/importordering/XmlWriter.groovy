@@ -16,7 +16,9 @@ public class XmlWriter {
             Node res = builder.component(name: "ProjectCodeStyleSettingsManager") {
                 option(name: 'PER_PROJECT_SETTINGS') {
                     value() {
-                        option(name: 'CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND', value: settings.classCountToImportStar.orElse(0))
+                        if  (settings.classCountToImportStar.present) {
+                            option(name: 'CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND', value: settings.classCountToImportStar.get())
+                        }
                         option(name: 'PACKAGES_TO_USE_IMPORT_ON_DEMAND') {
                             value() {
                                 for (ImportLine importLine : settings.importLines) {
