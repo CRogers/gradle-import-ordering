@@ -58,8 +58,8 @@ public class XmlWriterShould {
     produce_two_packages_entries_from_two_import_lines_in_the_right_order() {
         xmlProducedBy(importLines("foo.bar", "baz.quux"))
             .shouldHavePackageXmlEquivalentTo(
-                "<package name='foo.bar' withSubpackages='false' static='false'/>",
-                "<package name='baz.quux' withSubpackages='false' static='false'/>"
+                "<package name='foo.bar' withSubpackages='true' static='false'/>",
+                "<package name='baz.quux' withSubpackages='true' static='false'/>"
             );
     }
 
@@ -67,12 +67,12 @@ public class XmlWriterShould {
     produce_a_static_package_entry() {
         xmlProducedBy(ImportLines.from(ImportLine.fromStatic("static.foo")))
             .shouldHavePackageXmlEquivalentTo(
-                "<package name='static.foo' withSubpackages='false' static='true'/>"
+                "<package name='static.foo' withSubpackages='true' static='true'/>"
             );
     }
 
     private String packageWithName(String name) {
-        return PACKAGE_OPTION_XPATH + "/package[@name='" + name +"'][@withSubpackages='false'][@static='false']";
+        return PACKAGE_OPTION_XPATH + "/package[@name='" + name +"'][@withSubpackages='true'][@static='false']";
     }
 
     private static class XmlProducedBy {

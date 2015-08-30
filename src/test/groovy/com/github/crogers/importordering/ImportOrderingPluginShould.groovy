@@ -1,13 +1,11 @@
 package com.github.crogers.importordering
+
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.hamcrest.Matcher
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TemporaryFolder
 
 import javax.xml.transform.Source
@@ -78,7 +76,7 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThatIprHasPackages("<package name='foo.bar' withSubpackages='false' static='false'/>");
+        assertThatIprHasPackages("<package name='foo.bar' withSubpackages='true' static='false'/>");
     }
 
     @Test
@@ -93,8 +91,8 @@ public class ImportOrderingPluginShould {
         buildIdeaProject()
 
         assertThatIprHasPackages("""
-            <package name='foo.bar' withSubpackages='false' static='false'/>
-            <package name='baz.quux' withSubpackages='false' static='false'/>
+            <package name='foo.bar' withSubpackages='true' static='false'/>
+            <package name='baz.quux' withSubpackages='true' static='false'/>
         """);
     }
 
@@ -108,7 +106,21 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThatIprHasPackages("<package name='some.static.thing' withSubpackages='false' static='true'/>")
+        assertThatIprHasPackages("<package name='some.static.thing' withSubpackages='true' static='true'/>")
+    }
+
+    @Test
+    @Ignore
+    public void produce_an_entry_without_subpackages() {
+        addToBuildFile """
+            importOrdering {
+                importLine withoutSubpackages(), 'javax.awt'
+            }
+        """
+
+        buildIdeaProject()
+
+        assertThatIprHasPackages("<package name='javax.awt' withSubpackages='false', static='false'/>")
     }
 
     public void addToBuildFile(String text) {
