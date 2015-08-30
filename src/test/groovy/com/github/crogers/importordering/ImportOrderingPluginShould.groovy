@@ -135,6 +135,27 @@ public class ImportOrderingPluginShould {
         assertThatIprHasPackages("<package name='bat.man' withSubpackages='false' static='true'/>")
     }
 
+    @Test
+    public void produce_a_whole_load_combinations_of_import_lines() {
+        addToBuildFile """
+            importOrdering {
+                importStatic 'foo.bar'
+                importLine withoutSubpackages(), 'baz.quu'
+                importStatic withoutSubpackages(), 'bat.man'
+                importLine 'vanilla'
+            }
+        """
+
+        buildIdeaProject()
+
+        assertThatIprHasPackages("""
+            <package name='foo.bar' withSubpackages='true' static='true'/>
+            <package name='baz.quu' withSubpackages='false' static='false'/>
+            <package name='bat.man' withSubpackages='false' static='true'/>
+            <package name='vanilla' withSubpackages='true' static='false'/>
+        """)
+    }
+
     public void addToBuildFile(String text) {
         buildFile << text.stripIndent()
     }
