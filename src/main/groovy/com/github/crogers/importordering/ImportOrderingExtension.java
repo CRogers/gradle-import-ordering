@@ -8,7 +8,7 @@ public class ImportOrderingExtension {
     private final List<ImportLine> importLines = Lists.newArrayList();
 
     public void importLine(String pattern) {
-        importLines.add(ImportLine.from(pattern, false));
+        importLines.add(ImportLine.instance(pattern));
     }
 
     public void importStatic(String pattern) {

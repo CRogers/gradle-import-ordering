@@ -29,6 +29,6 @@ public abstract class ImportLines implements Iterable<ImportLine> {
     }
 
     public static ImportLines importLines(String... importLines) {
-        return ImportLines.from(Iterables.transform(Arrays.asList(importLines), (line) -> ImportLine.from(line, false)));
+        return ImportLines.from(Iterables.transform(Arrays.asList(importLines), ImportLine::instance));
     }
 }

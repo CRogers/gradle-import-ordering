@@ -10,4 +10,8 @@ public abstract class ImportLine {
     public static ImportLine from(String importLine, boolean isStatic) {
         return new AutoValue_ImportLine(importLine, isStatic);
     }
+
+    public static ImportLine instance(String importLine) {
+        return new AutoValue_ImportLine(importLine, false);
+    }
 }
