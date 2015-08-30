@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 
+import static com.github.crogers.importordering.ImportLines.importLines;
 import static com.github.crogers.importordering.ImportLines.noImportLines;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasXPath;
@@ -42,8 +43,13 @@ public class XmlWriterShould {
 
     @Test public void
     produce_a_package_entry_from_an_import_line() {
-        xmlProducedBy(ImportLines.from(ImportLine.from("foo.bar")))
+        xmlProducedBy(importLines("foo.bar"))
                 .shouldHaveXPath(packageWithName("foo.bar"));
+    }
+
+    @Test public void
+    produce_two_packages_entires_from_two_import_lines() {
+        //xmlProducedBy()
     }
 
     private String packageWithName(String name) {

@@ -1,6 +1,7 @@
 package com.github.crogers.importordering;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.Iterables;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,5 +26,9 @@ public abstract class ImportLines implements Iterable<ImportLine> {
 
     public static ImportLines noImportLines() {
         return from(Collections.emptyList());
+    }
+
+    public static ImportLines importLines(String... importLines) {
+        return ImportLines.from(Iterables.transform(Arrays.asList(importLines), ImportLine::from));
     }
 }
