@@ -25,7 +25,7 @@ import static org.xmlmatchers.xpath.XpathReturnType.returningAnXmlNode;
 public class XmlWriterShould {
     private static final String COMPONENT_XPATH = "/project/component[@name='ProjectCodeStyleSettingsManager']";
     private static final String PROJECT_OPTION_XPATH = COMPONENT_XPATH + "/option[@name='PER_PROJECT_SETTINGS']/value";
-    public static final String PACKAGE_OPTION_XPATH = PROJECT_OPTION_XPATH + "/option[@name='PACKAGES_TO_USE_IMPORT_ON_DEMAND']/value";
+    public static final String PACKAGE_OPTION_XPATH = PROJECT_OPTION_XPATH + "/option[@name='IMPORT_LAYOUT_TABLE']/value";
 
     @Test public void
     produce_a_component_with_a_name_of_ProjectCodeStyleSettingsManager() throws ParserConfigurationException, IOException, SAXException {
@@ -40,7 +40,7 @@ public class XmlWriterShould {
     }
 
     @Test public void
-    produce_a_component_containing_a_suboption_with_a_name_of_PACKAGES_TO_USE_IMPORT_ON_DEMAND() {
+    produce_a_component_containing_a_suboption_with_a_name_of_IMPORT_LAYOUT_TABLE() {
         xmlProducedBy(noImportLines())
                 .shouldHaveXPath(PACKAGE_OPTION_XPATH);
     }

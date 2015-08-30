@@ -22,7 +22,7 @@ public class XmlWriter {
                         if  (settings.nameCountToStaticImportStar.present) {
                             option(name: 'NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND', value: settings.nameCountToStaticImportStar.get())
                         }
-                        option(name: 'PACKAGES_TO_USE_IMPORT_ON_DEMAND') {
+                        option(name: 'IMPORT_LAYOUT_TABLE') {
                             value() {
                                 for (ImportLine importLine : settings.importLines) {
                                     'package'(name: importLine.asString(), withSubpackages: importLine.withSubpackages().asBoolean(), static: importLine.static)

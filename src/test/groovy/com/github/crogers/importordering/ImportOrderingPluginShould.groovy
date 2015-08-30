@@ -199,7 +199,7 @@ public class ImportOrderingPluginShould {
     private void assertThatIprHasPackages(String packages) {
         Source packageXml = xml("<value>${packages}</value>")
         assertThat(the(iprFile()), hasXPathReturningAnXmlNode(
-                PER_PROJECT_SETTINGS_XPATH + "/option[@name='PACKAGES_TO_USE_IMPORT_ON_DEMAND']/value", equivalentTo(packageXml)));
+                PER_PROJECT_SETTINGS_XPATH + "/option[@name='IMPORT_LAYOUT_TABLE']/value", equivalentTo(packageXml)));
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
