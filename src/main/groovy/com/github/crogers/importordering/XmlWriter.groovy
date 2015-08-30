@@ -1,17 +1,16 @@
 package com.github.crogers.importordering
-
 import org.gradle.api.XmlProvider
-import org.gradle.plugins.ide.idea.model.IdeaProject
+import org.gradle.plugins.ide.api.XmlFileContentMerger
 
 public class XmlWriter {
-    private final IdeaProject project;
+    private final XmlFileContentMerger xmlFileContentMerger;
 
-    public XmlWriter(IdeaProject project) {
-        this.project = project
+    public XmlWriter(XmlFileContentMerger xmlFileContentMerger) {
+        this.xmlFileContentMerger = xmlFileContentMerger
     }
 
     public void writeXml() {
-        project.ipr.withXml { XmlProvider xml ->
+        xmlFileContentMerger.withXml { XmlProvider xml ->
             NodeBuilder builder = new NodeBuilder()
             Node res = builder.component(name: "ProjectCodeStyleSettingsManager")
 
