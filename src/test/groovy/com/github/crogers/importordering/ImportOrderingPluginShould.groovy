@@ -16,6 +16,7 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.xmlmatchers.XmlMatchers.equivalentTo
 import static org.xmlmatchers.XmlMatchers.hasXPath
 import static org.xmlmatchers.transform.XmlConverters.the
+import static org.xmlmatchers.transform.XmlConverters.xml
 import static org.xmlmatchers.xpath.XpathReturnType.returningAnXmlNode
 
 @CompileStatic
@@ -70,13 +71,9 @@ public class ImportOrderingPluginShould {
             }
         """.stripIndent()
 
-        BuildResult result = GradleRunner.create()
-            .withProjectDir(projectDir.getRoot())
-            .withArguments("idea")
-            .build()
+        buildIdeaProject()
 
-        println result.standardOutput
-        assertThatIprHasPackages("<value><package name='foo.bar' withSubpackages='false' static='false'/></value>");
+        assertThatIprHasPackages("<package name='foo.bar' withSubpackages='false' static='false'/>");
     }
 
     @Test
@@ -91,27 +88,29 @@ public class ImportOrderingPluginShould {
             }
         """.stripIndent()
 
-        BuildResult result = GradleRunner.create()
-            .withProjectDir(projectDir.getRoot())
-            .withArguments("idea")
-            .build()
-
-        println result.standardOutput
+        buildIdeaProject()
 
         assertThatIprHasPackages("""
-            <value>
-                <package name='foo.bar' withSubpackages='false' static='false'/>
-                <package name='baz.quux' withSubpackages='false' static='false'/>
-            </value>
+            <package name='foo.bar' withSubpackages='false' static='false'/>
+            <package name='baz.quux' withSubpackages='false' static='false'/>
         """);
     }
 
+    private void buildIdeaProject() {
+        BuildResult result = GradleRunner.create()
+                .withProjectDir(projectDir.getRoot())
+                .withArguments("idea")
+                .build()
+
+        println result.standardOutput
+    }
 
     private void assertThatIprHasPackages(String packages) {
+        Source packageXml = xml("<value>${packages}</value>")
         assertThat(the(iprFile()), hasXPathReturningAnXmlNode(
                 "/project/component[@name='ProjectCodeStyleSettingsManager']"
                         + "/option[@name='PER_PROJECT_SETTINGS']/value"
-                        + "/option[@name='PACKAGES_TO_USE_IMPORT_ON_DEMAND']/value", equivalentTo(the(packages))));
+                        + "/option[@name='PACKAGES_TO_USE_IMPORT_ON_DEMAND']/value", equivalentTo(packageXml)));
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
