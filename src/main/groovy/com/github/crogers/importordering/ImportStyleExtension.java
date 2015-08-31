@@ -4,7 +4,7 @@ import org.gradle.api.Action;
 
 import java.util.Optional;
 
-public class ImportOrderingExtension implements Settings {
+public class ImportStyleExtension implements Settings {
     private final ImportOrderingBuilder importOrderingBuilder = new ImportOrderingBuilder();
     private Optional<Integer> classCountToImportStar = Optional.empty();
     private Optional<Integer> nameCountToStaticImportStar = Optional.empty();
