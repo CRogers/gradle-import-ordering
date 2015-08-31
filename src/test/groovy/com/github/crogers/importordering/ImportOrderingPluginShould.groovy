@@ -63,7 +63,7 @@ public class ImportOrderingPluginShould {
     public void applyPlugins() {
         addToBuildFile """
             apply plugin: 'idea'
-            apply plugin: 'import-ordering'
+            apply plugin: 'import-style'
         """
     }
 
