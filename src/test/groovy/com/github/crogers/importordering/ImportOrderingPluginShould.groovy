@@ -70,8 +70,10 @@ public class ImportOrderingPluginShould {
     @Test
     public void produce_a_single_entry_in_the_ipr_xml_with_a_single_entry() {
         addToBuildFile """
-            importOrdering {
-                importLine 'foo.bar'
+            importStyle {
+                importOrdering {
+                    importLine 'foo.bar'
+                }
             }
         """
 
@@ -83,9 +85,11 @@ public class ImportOrderingPluginShould {
     @Test
     public void produce_a_two_entries_in_the_ipr_xml_with_two_entries() {
         addToBuildFile """
-            importOrdering {
-                importLine 'foo.bar'
-                importLine 'baz.quux'
+            importStyle {
+                importOrdering {
+                    importLine 'foo.bar'
+                    importLine 'baz.quux'
+                }
             }
         """
 
@@ -100,8 +104,10 @@ public class ImportOrderingPluginShould {
     @Test
     public void produce_a_static_entry_in_the_xml() {
         addToBuildFile """
-            importOrdering {
-                importStatic 'some.static.thing'
+            importStyle {
+                importOrdering {
+                    importStatic 'some.static.thing'
+                }
             }
         """
 
@@ -113,8 +119,10 @@ public class ImportOrderingPluginShould {
     @Test
     public void produce_an_entry_without_subpackages() {
         addToBuildFile """
-            importOrdering {
-                importLine withoutSubpackages(), 'javax.awt'
+            importStyle {
+                importOrdering {
+                    importLine withoutSubpackages(), 'javax.awt'
+                }
             }
         """
 
@@ -126,8 +134,10 @@ public class ImportOrderingPluginShould {
     @Test
     public void produce_a_static_entry_without_subpackages() {
         addToBuildFile """
-            importOrdering {
-                importStatic withoutSubpackages(), 'bat.man'
+            importStyle {
+                importOrdering {
+                    importStatic withoutSubpackages(), 'bat.man'
+                }
             }
         """
 
@@ -139,11 +149,13 @@ public class ImportOrderingPluginShould {
     @Test
     public void produce_a_whole_load_combinations_of_import_lines() {
         addToBuildFile """
-            importOrdering {
-                importStatic 'foo.bar'
-                importLine withoutSubpackages(), 'baz.quu'
-                importStatic withoutSubpackages(), 'bat.man'
-                importLine 'vanilla'
+            importStyle {
+                importOrdering {
+                    importStatic 'foo.bar'
+                    importLine withoutSubpackages(), 'baz.quu'
+                    importStatic withoutSubpackages(), 'bat.man'
+                    importLine 'vanilla'
+                }
             }
         """
 
@@ -160,7 +172,7 @@ public class ImportOrderingPluginShould {
     @Test
     public void set_the_class_count_to_use_import_on_demand() {
         addToBuildFile """
-            importOrdering {
+            importStyle {
                 classCountToImportStar 29
             }
         """
@@ -173,7 +185,7 @@ public class ImportOrderingPluginShould {
     @Test
     public void set_the_name_count_to_use_import_on_demand() {
         addToBuildFile """
-            importOrdering {
+            importStyle {
                 nameCountToStaticImportStar 31
             }
         """
