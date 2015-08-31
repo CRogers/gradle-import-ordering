@@ -27,7 +27,7 @@ public class ImportOrderingBuilder {
         return WithSubpackages.WITHOUT_SUBPACKAGES;
     }
 
-    public ImportLines build() {
-        return ImportLines.from(importLines);
+    public ImportOrdering build() {
+        return ImportOrdering.from(importLines);
     }
 }

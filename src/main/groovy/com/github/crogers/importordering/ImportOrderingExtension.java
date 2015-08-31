@@ -22,7 +22,7 @@ public class ImportOrderingExtension implements Settings {
     }
 
     @Override
-    public ImportLines getImportLines() {
+    public ImportOrdering getImportOrdering() {
         return importOrderingBuilder.build();
     }
 

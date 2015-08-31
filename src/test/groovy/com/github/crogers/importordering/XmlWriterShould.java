@@ -11,8 +11,8 @@ import javax.xml.transform.Source;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.github.crogers.importordering.ImportLines.importLines;
-import static com.github.crogers.importordering.ImportLines.noImportLines;
+import static com.github.crogers.importordering.ImportOrdering.importLines;
+import static com.github.crogers.importordering.ImportOrdering.noImportLines;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;
@@ -69,7 +69,7 @@ public class XmlWriterShould {
 
     @Test public void
     produce_a_static_package_entry() {
-        xmlProducedBy(ImportLines.from(ImportLine.fromStatic("static.foo")))
+        xmlProducedBy(ImportOrdering.from(ImportLine.fromStatic("static.foo")))
             .shouldHavePackageXmlEquivalentTo(
                 "<package name='static.foo' withSubpackages='true' static='true'/>"
             );
@@ -77,7 +77,7 @@ public class XmlWriterShould {
 
     @Test public void
     produce_an_entry_without_subpackages() {
-        xmlProducedBy(ImportLines.from(ImportLine.instance("nah.bah", WithSubpackages.WITHOUT_SUBPACKAGES)))
+        xmlProducedBy(ImportOrdering.from(ImportLine.instance("nah.bah", WithSubpackages.WITHOUT_SUBPACKAGES)))
             .shouldHavePackageXmlEquivalentTo(
                 "<package name='nah.bah' withSubpackages='false' static='false'/>"
             );
@@ -126,11 +126,11 @@ public class XmlWriterShould {
     private static class XmlProducedBy {
         private final Source xmlDocument;
 
-        public XmlProducedBy(Settings importLines) {
+        public XmlProducedBy(Settings settings) {
             XmlFileContentMerger xmlFileContentMerger = new XmlFileContentMerger(new XmlTransformer());
             XmlWriter xmlWriter = new XmlWriter(xmlFileContentMerger);
 
-            xmlWriter.writeXml(importLines);
+            xmlWriter.writeXml(settings);
             String result = xmlFileContentMerger.getXmlTransformer().transform("<project/>");
 
             this.xmlDocument = xml(result);
@@ -152,9 +152,9 @@ public class XmlWriterShould {
         }
     }
 
-    private XmlProducedBy xmlProducedBy(ImportLines importLines) {
+    private XmlProducedBy xmlProducedBy(ImportOrdering importOrdering) {
         Settings settings = defaultSettings();
-        when(settings.getImportLines()).thenReturn(importLines);
+        when(settings.getImportOrdering()).thenReturn(importOrdering);
         return xmlProducedBy(settings);
     }
 
@@ -164,7 +164,7 @@ public class XmlWriterShould {
 
     private Settings defaultSettings() {
         Settings settings = mock(Settings.class);
-        when(settings.getImportLines()).thenReturn(ImportLines.from());
+        when(settings.getImportOrdering()).thenReturn(ImportOrdering.from());
         when(settings.getClassCountToImportStar()).thenReturn(Optional.empty());
         when(settings.getNameCountToStaticImportStar()).thenReturn(Optional.empty());
         return settings;

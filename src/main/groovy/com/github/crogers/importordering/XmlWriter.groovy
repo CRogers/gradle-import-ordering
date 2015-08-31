@@ -24,7 +24,7 @@ public class XmlWriter {
                         }
                         option(name: 'IMPORT_LAYOUT_TABLE') {
                             value() {
-                                for (ImportLine importLine : settings.importLines) {
+                                for (ImportLine importLine : settings.importOrdering) {
                                     'package'(name: importLine.asString(), withSubpackages: importLine.withSubpackages().asBoolean(), static: importLine.static)
                                 }
                             }
