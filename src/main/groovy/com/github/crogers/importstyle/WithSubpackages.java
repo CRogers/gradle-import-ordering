@@ -1,4 +1,4 @@
-package com.github.crogers.importordering;
+package com.github.crogers.importstyle;
 
 public enum WithSubpackages {
     WITH_SUBPACKAGES(true),

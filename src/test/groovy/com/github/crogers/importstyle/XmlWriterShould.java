@@ -1,4 +1,4 @@
-package com.github.crogers.importordering;
+package com.github.crogers.importstyle;
 
 import com.google.common.base.Joiner;
 import org.gradle.internal.xml.XmlTransformer;
@@ -11,8 +11,8 @@ import javax.xml.transform.Source;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.github.crogers.importordering.ImportOrdering.importLines;
-import static com.github.crogers.importordering.ImportOrdering.noImportLines;
+import static com.github.crogers.importstyle.ImportOrdering.importLines;
+import static com.github.crogers.importstyle.ImportOrdering.noImportLines;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;

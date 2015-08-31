@@ -1,4 +1,4 @@
-package com.github.crogers.importordering
+package com.github.crogers.importstyle
 
 import org.gradle.api.XmlProvider
 import org.gradle.plugins.ide.api.XmlFileContentMerger

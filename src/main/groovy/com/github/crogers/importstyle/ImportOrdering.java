@@ -1,4 +1,4 @@
-package com.github.crogers.importordering;
+package com.github.crogers.importstyle;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.Iterables;

@@ -1,4 +1,4 @@
-package com.github.crogers.importordering
+package com.github.crogers.importstyle
 
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
