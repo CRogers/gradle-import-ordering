@@ -31,6 +31,7 @@ public class XmlWriter {
                         }
                     }
                 }
+                option(name: 'USE_PER_PROJECT_SETTINGS', value: 'true')
             }
 
             xml.asNode().append(res)

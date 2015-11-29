@@ -1,8 +1,10 @@
 package com.github.crogers.importstyle
+
 import com.google.common.collect.ImmutableList
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.codeStyle.PackageEntry
 import groovy.transform.CompileStatic
+import org.apache.commons.io.IOUtils
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.hamcrest.Matcher
@@ -16,15 +18,28 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-import static com.github.crogers.importstyle.PackageEntryMatchers.*
+import java.nio.file.Files
+
+import static com.github.crogers.importstyle.PackageEntryMatchers.isStatic
+import static com.github.crogers.importstyle.PackageEntryMatchers.named
+import static com.github.crogers.importstyle.PackageEntryMatchers.notStatic
+import static com.github.crogers.importstyle.PackageEntryMatchers.package_
+import static com.github.crogers.importstyle.PackageEntryMatchers.withSubpackages
+import static com.github.crogers.importstyle.PackageEntryMatchers.withoutSubpackages
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.contains
 import static org.hamcrest.Matchers.equalTo
+import static org.xmlmatchers.transform.XmlConverters.the
+import static org.xmlmatchers.xpath.HasXPath.hasXPath
 
 @CompileStatic
 public class ImportOrderingPluginShould {
-    public static final String PER_PROJECT_SETTINGS_XPATH = "/project/component[@name='ProjectCodeStyleSettingsManager']/option[@name='PER_PROJECT_SETTINGS']/value"
+    public static final String PROJECT_CODE_STYLE_SETTINGS_MANAGER = "/project/component[@name='ProjectCodeStyleSettingsManager']"
+    public static final String PER_PROJECT_SETTINGS_XPATH = "$PROJECT_CODE_STYLE_SETTINGS_MANAGER/option[@name='PER_PROJECT_SETTINGS']/value"
+    public static final String USE_PER_PROJECT_SETTINGS = "$PROJECT_CODE_STYLE_SETTINGS_MANAGER/option[@name='USE_PER_PROJECT_SETTINGS']"
+
     @Rule public final TemporaryFolder projectDir = new TemporaryFolder();
+
     private File buildFile;
 
     @BeforeClass
@@ -207,6 +222,17 @@ public class ImportOrderingPluginShould {
         assertThatNameCountToUseImportOnDemandIs(31)
     }
 
+    @Test
+    public void enforce_use_of_per_project_file_settings() {
+        addToBuildFile """
+            importStyle {}
+        """
+
+        buildIdeaProject()
+
+        assertThat(the(iprFile()), hasXPath(USE_PER_PROJECT_SETTINGS + "[@value='true']"))
+    }
+
     public void addToBuildFile(String text) {
         buildFile << text.stripIndent()
     }
@@ -255,5 +281,9 @@ public class ImportOrderingPluginShould {
 
     private File iprFileLocation() {
         return new File(projectDir.getRoot(), "${projectDir.root.name}.ipr")
+    }
+
+    private String iprFile() {
+        return IOUtils.toString(Files.newBufferedReader(iprFileLocation().toPath()))
     }
 }

@@ -107,6 +107,14 @@ public class XmlWriterShould {
             .shouldHaveXPath(PROJECT_OPTION_XPATH + "/option[@name='NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='33']");
     }
 
+    @Test public void
+    enforce_use_of_per_project_file_settings() {
+        Settings settings = defaultSettings();
+
+        xmlProducedBy(settings)
+            .shouldHaveXPath(COMPONENT_XPATH + "/option[@name='USE_PER_PROJECT_SETTINGS'][@value='true']");
+    }
+
     private Settings settingsWithClassCount(Optional<Integer> value) {
         Settings settings = defaultSettings();
         when(settings.getClassCountToImportStar()).thenReturn(value);
