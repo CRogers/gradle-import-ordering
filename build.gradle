@@ -1,10 +1,14 @@
 plugins {
     id 'org.inferred.processors' version '1.0'
+    id 'com.gradle.plugin-publish' version '0.9.1'
 }
 
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'idea'
+
+version = '0.1.0'
+group = 'com.github.crogers'
 
 repositories {
     mavenCentral()
@@ -39,5 +43,19 @@ task createClasspathManifest {
     doLast {
         outputDir.mkdirs()
         file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/CRogers/gradle-import-styling'
+    vcsUrl = 'https://github.com/CRogers/gradle-import-styling'
+    description = 'Specify your import ordering style in gradle to set them in IntelliJ'
+    tags = ['configuration', 'import-ordering', 'intellij']
+
+    plugins {
+        importStylePlugin {
+            id = 'com.github.crogers.import-style'
+            displayName = 'Gradle Import Style Plugin'
+        }
     }
 }
