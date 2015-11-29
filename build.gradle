@@ -1,3 +1,5 @@
+import org.apache.commons.io.IOUtils
+
 plugins {
     id 'org.inferred.processors' version '1.0'
     id 'com.gradle.plugin-publish' version '0.9.1'
@@ -7,8 +9,23 @@ apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'idea'
 
-version = '0.1.0'
+version = gitDescribe()
 group = 'com.github.crogers'
+
+String gitDescribe() {
+    Process process = new ProcessBuilder()
+        .command("git", "describe", "--dirty", "--tags")
+        .start()
+
+    process.waitFor()
+
+    if (process.exitValue() != 0) {
+        String stderr = IOUtils.toString(process.getErrorStream())
+        throw new RuntimeException("Failed run git describe: " + stderr);
+    }
+
+    return IOUtils.toString(process.getInputStream()).trim()
+}
 
 repositories {
     mavenCentral()
