@@ -20,8 +20,6 @@ import static com.github.crogers.importstyle.PackageEntryMatchers.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.contains
 import static org.hamcrest.Matchers.equalTo
-import static org.xmlmatchers.XmlMatchers.hasXPath
-import static org.xmlmatchers.transform.XmlConverters.the
 
 @CompileStatic
 public class ImportOrderingPluginShould {
@@ -206,34 +204,7 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThat(the(iprFile()), hasXPath(PER_PROJECT_SETTINGS_XPATH + "/option[@name='NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='31']"))
-    }
-    
-    @Test
-    public void read_the_import_ordering_from_a_checkstyle_xml() {
-        addToBuildFile """
-            importStyle {
-            }
-        """
-
-        buildIdeaProject()
-
-
-
-        File checkstyleXml = projectDir.newFile("checkstyle.xml")
-        checkstyleXml << """
-            <?xml version="1.0"?>
-            <!DOCTYPE module PUBLIC
-                "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
-                "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
-
-            <module name="Checker">
-                <module name="TreeWalker">
-
-                </module>
-            </module>
-        """.stripIndent()
-
+        assertThatNameCountToUseImportOnDemandIs(31)
     }
 
     public void addToBuildFile(String text) {
@@ -274,6 +245,12 @@ public class ImportOrderingPluginShould {
         CodeStyleSettings codeStyleSettings = readCodeStyleSettingsFromIprFile()
 
         assertThat(codeStyleSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND, equalTo(number));
+    }
+
+    private void assertThatNameCountToUseImportOnDemandIs(int number) {
+        CodeStyleSettings codeStyleSettings = readCodeStyleSettingsFromIprFile()
+
+        assertThat(codeStyleSettings.NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND, equalTo(number));
     }
 
     private String iprFile() {
