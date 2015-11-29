@@ -253,11 +253,6 @@ public class ImportOrderingPluginShould {
         assertThat(codeStyleSettings.NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND, equalTo(number));
     }
 
-    private String iprFile() {
-        File iprFile = iprFileLocation()
-        return iprFile.readLines().join("\n")
-    }
-
     private File iprFileLocation() {
         return new File(projectDir.getRoot(), "${projectDir.root.name}.ipr")
     }
