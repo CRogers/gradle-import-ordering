@@ -1,16 +1,28 @@
 package com.github.crogers.importstyle
 
+import com.google.common.collect.ImmutableList
+import com.intellij.psi.codeStyle.CodeStyleSettings
+import com.intellij.psi.codeStyle.PackageEntry
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.hamcrest.Matcher
-import org.junit.*
+import org.jdom.Document
+import org.jdom.Element
+import org.jdom.input.SAXBuilder
+import org.jdom.xpath.XPath
+import org.junit.Before
+import org.junit.BeforeClass
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
 import javax.xml.transform.Source
 
+import static com.github.crogers.importstyle.PackageEntryMatchers.*
 import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.contains
 import static org.xmlmatchers.XmlMatchers.equivalentTo
 import static org.xmlmatchers.XmlMatchers.hasXPath
 import static org.xmlmatchers.transform.XmlConverters.the
@@ -161,12 +173,12 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThatIprHasPackages("""
-            <package name='foo.bar' withSubpackages='true' static='true'/>
-            <package name='baz.quu' withSubpackages='false' static='false'/>
-            <package name='bat.man' withSubpackages='false' static='true'/>
-            <package name='vanilla' withSubpackages='true' static='false'/>
-        """)
+        assertThatIprHasPackages(
+            package_(named("foo.bar"), withSubpackages(), isStatic()),
+            package_(named("baz.quu"), withoutSubpackages(), notStatic()),
+            package_(named("bat.man"), withoutSubpackages(), isStatic()),
+            package_(named("vanilla"), withSubpackages(), notStatic())
+        );
     }
 
     @Test
@@ -194,6 +206,33 @@ public class ImportOrderingPluginShould {
 
         assertThat(the(iprFile()), hasXPath(PER_PROJECT_SETTINGS_XPATH + "/option[@name='NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='31']"))
     }
+    
+    @Test
+    public void read_the_import_ordering_from_a_checkstyle_xml() {
+        addToBuildFile """
+            importStyle {
+            }
+        """
+
+        buildIdeaProject()
+
+
+
+        File checkstyleXml = projectDir.newFile("checkstyle.xml")
+        checkstyleXml << """
+            <?xml version="1.0"?>
+            <!DOCTYPE module PUBLIC
+                "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+                "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+            <module name="Checker">
+                <module name="TreeWalker">
+
+                </module>
+            </module>
+        """.stripIndent()
+
+    }
 
     public void addToBuildFile(String text) {
         buildFile << text.stripIndent()
@@ -214,13 +253,31 @@ public class ImportOrderingPluginShould {
                 PER_PROJECT_SETTINGS_XPATH + "/option[@name='IMPORT_LAYOUT_TABLE']/value", equivalentTo(packageXml)));
     }
 
+    private void assertThatIprHasPackages(Matcher<PackageEntry>... packageEntryMatchers) {
+        Document doc = new SAXBuilder().build(iprFileLocation());
+        Element el = (Element) XPath.newInstance(PER_PROJECT_SETTINGS_XPATH).selectSingleNode(doc);
+
+        CodeStyleSettings css = new CodeStyleSettings(false);
+        css.readExternal(el);
+
+        assertThat(Arrays.asList(css.IMPORT_LAYOUT_TABLE.getEntries()), contains(ImmutableList.<Matcher<PackageEntry>>builder()
+            .add(packageEntryMatchers)
+            .add(package_(named("<blank line>")))
+            .add(package_(named("<all other static imports>")))
+            .build()));
+    }
+
     @CompileStatic(TypeCheckingMode.SKIP)
     private Matcher<Source> hasXPathReturningAnXmlNode(String xpath, Matcher<Source> matcher) {
         return hasXPath(xpath, returningAnXmlNode(), matcher)
     }
 
     private String iprFile() {
-        File iprFile = new File(projectDir.getRoot(), "${projectDir.root.name}.ipr")
+        File iprFile = iprFileLocation()
         return iprFile.readLines().join("\n")
+    }
+
+    private File iprFileLocation() {
+        return new File(projectDir.getRoot(), "${projectDir.root.name}.ipr")
     }
 }
