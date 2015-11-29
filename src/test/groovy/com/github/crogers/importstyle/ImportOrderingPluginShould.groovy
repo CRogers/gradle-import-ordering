@@ -19,6 +19,7 @@ import org.junit.rules.TemporaryFolder
 import static com.github.crogers.importstyle.PackageEntryMatchers.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.contains
+import static org.hamcrest.Matchers.equalTo
 import static org.xmlmatchers.XmlMatchers.hasXPath
 import static org.xmlmatchers.transform.XmlConverters.the
 
@@ -192,7 +193,7 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThat(the(iprFile()), hasXPath(PER_PROJECT_SETTINGS_XPATH + "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='29']"))
+        assertThatClassCountToUseImportOnDemandIs(29);
     }
 
     @Test
@@ -248,18 +249,31 @@ public class ImportOrderingPluginShould {
         println result.standardOutput
     }
 
-    private void assertThatIprHasPackages(Matcher<PackageEntry>... packageEntryMatchers) {
+    private CodeStyleSettings readCodeStyleSettingsFromIprFile() {
         Document doc = new SAXBuilder().build(iprFileLocation());
         Element el = (Element) XPath.newInstance(PER_PROJECT_SETTINGS_XPATH).selectSingleNode(doc);
 
-        CodeStyleSettings css = new CodeStyleSettings(false);
-        css.readExternal(el);
+        CodeStyleSettings codeStyleSettings = new CodeStyleSettings(false);
+        codeStyleSettings.readExternal(el);
+        codeStyleSettings
+    }
 
-        assertThat(Arrays.asList(css.IMPORT_LAYOUT_TABLE.getEntries()), contains(ImmutableList.<Matcher<PackageEntry>>builder()
+    private void assertThatIprHasPackages(Matcher<PackageEntry>... packageEntryMatchers) {
+        CodeStyleSettings codeStyleSettings = readCodeStyleSettingsFromIprFile()
+
+        List<PackageEntry> packageEntries = Arrays.asList(codeStyleSettings.IMPORT_LAYOUT_TABLE.getEntries())
+
+        assertThat(packageEntries, contains(ImmutableList.<Matcher<PackageEntry>>builder()
             .add(packageEntryMatchers)
             .add(package_(named("<blank line>")))
             .add(package_(named("<all other static imports>")))
             .build()));
+    }
+
+    private void assertThatClassCountToUseImportOnDemandIs(int number) {
+        CodeStyleSettings codeStyleSettings = readCodeStyleSettingsFromIprFile()
+
+        assertThat(codeStyleSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND, equalTo(number));
     }
 
     private String iprFile() {
