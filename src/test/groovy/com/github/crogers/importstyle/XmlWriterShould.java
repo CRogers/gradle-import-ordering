@@ -57,14 +57,14 @@ public class XmlWriterShould {
     @Test public void
     produce_a_package_entry_from_an_import_line() {
         xmlProducedBy(importLines("foo.bar"))
-                .shouldHaveXPath(packageWithName("foo.bar"));
+                .shouldHavePackageWithName("foo.bar");
     }
 
     @Test public void
     produce_two_packages_entries_from_two_import_lines() {
         xmlProducedBy(importLines("foo.bar", "baz.quux"))
-                .shouldHaveXPath(packageWithName("foo.bar"))
-                .shouldHaveXPath(packageWithName("baz.quux"));
+                .shouldHavePackageWithName("foo.bar")
+                .shouldHavePackageWithName("baz.quux");
     }
 
     @Test public void
@@ -136,10 +136,6 @@ public class XmlWriterShould {
         return settings;
     }
 
-    private String packageWithName(String name) {
-        return JAVA_PACKAGE_OPTION_XPATH + "/package[@name='" + name +"'][@withSubpackages='true'][@static='false']";
-    }
-
     private static class XmlProducedBy {
         private final Source xmlDocument;
 
@@ -151,6 +147,13 @@ public class XmlWriterShould {
             String result = xmlFileContentMerger.getXmlTransformer().transform("<project/>");
 
             this.xmlDocument = xml(result);
+        }
+
+        public XmlProducedBy shouldHavePackageWithName(String name) {
+            String packageWithName = "/package[@name='" + name + "']";
+            shouldHaveXPath(JAVA_PACKAGE_OPTION_XPATH + packageWithName);
+            shouldHaveXPath(GROOVY_PACKAGE_OPTION_PATH + packageWithName);
+            return this;
         }
 
         public XmlProducedBy shouldHaveXPath(String xPath) {
