@@ -113,7 +113,7 @@ public class XmlWriterShould {
         Settings settings = settingsWithNameCount(Optional.of(33));
 
         xmlProducedBy(settings)
-            .shouldHaveXPath(PROJECT_OPTION_XPATH + "/option[@name='NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='33']");
+            .shouldHaveNameCountToUseImportOnDemand(33);
     }
 
     @Test public void
@@ -157,7 +157,16 @@ public class XmlWriterShould {
         }
 
         public XmlProducedBy shouldHaveClassCountToUseImportOnDemand(int number) {
-            String xPath = "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='23']";
+            String xPath = "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='" + number + "']";
+            shouldHaveXPath(PROJECT_OPTION_XPATH + xPath);
+            shouldHaveXPath(GROOVY_CODE_STYLE_SETTINGS + xPath);
+            return this;
+        }
+
+
+
+        public XmlProducedBy shouldHaveNameCountToUseImportOnDemand(int number) {
+            String xPath = "/option[@name='NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='" + number + "']";
             shouldHaveXPath(PROJECT_OPTION_XPATH + xPath);
             shouldHaveXPath(GROOVY_CODE_STYLE_SETTINGS + xPath);
             return this;
