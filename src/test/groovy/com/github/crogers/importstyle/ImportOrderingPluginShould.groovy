@@ -1,5 +1,4 @@
 package com.github.crogers.importstyle
-
 import com.google.common.collect.ImmutableList
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.codeStyle.PackageEntry
@@ -24,6 +23,7 @@ import static com.github.crogers.importstyle.PackageEntryMatchers.isStatic
 import static com.github.crogers.importstyle.PackageEntryMatchers.named
 import static com.github.crogers.importstyle.PackageEntryMatchers.notStatic
 import static com.github.crogers.importstyle.PackageEntryMatchers.package_
+import static com.github.crogers.importstyle.PackageEntryMatchers.withDescription
 import static com.github.crogers.importstyle.PackageEntryMatchers.withSubpackages
 import static com.github.crogers.importstyle.PackageEntryMatchers.withoutSubpackages
 import static org.hamcrest.MatcherAssert.assertThat
@@ -36,6 +36,7 @@ import static org.xmlmatchers.xpath.HasXPath.hasXPath
 public class ImportOrderingPluginShould {
     public static final String PROJECT_CODE_STYLE_SETTINGS_MANAGER = "/project/component[@name='ProjectCodeStyleSettingsManager']"
     public static final String PER_PROJECT_SETTINGS_XPATH = "$PROJECT_CODE_STYLE_SETTINGS_MANAGER/option[@name='PER_PROJECT_SETTINGS']/value"
+    public static final String GROOVY_CODE_STYLE_SETTINGS = "$PER_PROJECT_SETTINGS_XPATH/GroovyCodeStyleSettings"
     public static final String USE_PER_PROJECT_SETTINGS = "$PROJECT_CODE_STYLE_SETTINGS_MANAGER/option[@name='USE_PER_PROJECT_SETTINGS']"
 
     @Rule public final TemporaryFolder projectDir = new TemporaryFolder();
@@ -240,43 +241,53 @@ public class ImportOrderingPluginShould {
     private void buildIdeaProject() {
         BuildResult result = GradleRunner.create()
                 .withProjectDir(projectDir.getRoot())
-                .withArguments("idea")
+                .withArguments("idea", "-s")
                 .build()
 
         println result.standardOutput
     }
 
-    private CodeStyleSettings readCodeStyleSettingsFromIprFile() {
+    private CodeStyleSettings readCodeStyleSettingsFromIprXPath(String xPath) {
         Document doc = new SAXBuilder().build(iprFileLocation());
-        Element el = (Element) XPath.newInstance(PER_PROJECT_SETTINGS_XPATH).selectSingleNode(doc);
+        Element el = (Element) XPath.newInstance(xPath).selectSingleNode(doc);
 
         CodeStyleSettings codeStyleSettings = new CodeStyleSettings(false);
         codeStyleSettings.readExternal(el);
-        codeStyleSettings
+        return codeStyleSettings
+    }
+
+    private CodeStyleSettings readJavaCodeStyleSettings() {
+        return readCodeStyleSettingsFromIprXPath(PER_PROJECT_SETTINGS_XPATH);
+    }
+
+    private CodeStyleSettings readGroovyCodeStyleSettings() {
+        return readCodeStyleSettingsFromIprXPath(GROOVY_CODE_STYLE_SETTINGS);
     }
 
     private void assertThatIprHasPackages(Matcher<PackageEntry>... packageEntryMatchers) {
-        CodeStyleSettings codeStyleSettings = readCodeStyleSettingsFromIprFile()
+        assertCodeStyleSettings("java ", readJavaCodeStyleSettings(), packageEntryMatchers)
+        assertCodeStyleSettings("groovy ", readGroovyCodeStyleSettings(), packageEntryMatchers)
+    }
 
+    private void assertCodeStyleSettings(String desc, CodeStyleSettings codeStyleSettings, Matcher<PackageEntry>... packageEntryMatchers) {
         List<PackageEntry> packageEntries = Arrays.asList(codeStyleSettings.IMPORT_LAYOUT_TABLE.getEntries())
 
-        assertThat(packageEntries, contains(ImmutableList.<Matcher<PackageEntry>>builder()
+        assertThat(packageEntries, withDescription(contains(ImmutableList.<Matcher<PackageEntry>> builder()
             .add(packageEntryMatchers)
             .add(package_(named("<blank line>")))
             .add(package_(named("<all other static imports>")))
-            .build()));
+            .build())
+        , desc));
     }
 
     private void assertThatClassCountToUseImportOnDemandIs(int number) {
-        CodeStyleSettings codeStyleSettings = readCodeStyleSettingsFromIprFile()
-
-        assertThat(codeStyleSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND, equalTo(number));
+        assertThat(readJavaCodeStyleSettings().CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND, equalTo(number));
+        assertThat(readGroovyCodeStyleSettings().CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND, equalTo(number));
     }
 
     private void assertThatNameCountToUseImportOnDemandIs(int number) {
-        CodeStyleSettings codeStyleSettings = readCodeStyleSettingsFromIprFile()
-
-        assertThat(codeStyleSettings.NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND, equalTo(number));
+        assertThat(readJavaCodeStyleSettings().NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND, equalTo(number));
+        assertThat(readGroovyCodeStyleSettings().NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND, equalTo(number));
     }
 
     private File iprFileLocation() {

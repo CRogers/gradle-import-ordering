@@ -25,7 +25,8 @@ import static org.xmlmatchers.xpath.XpathReturnType.returningAnXmlNode;
 public class XmlWriterShould {
     private static final String COMPONENT_XPATH = "/project/component[@name='ProjectCodeStyleSettingsManager']";
     private static final String PROJECT_OPTION_XPATH = COMPONENT_XPATH + "/option[@name='PER_PROJECT_SETTINGS']/value";
-    public static final String PACKAGE_OPTION_XPATH = PROJECT_OPTION_XPATH + "/option[@name='IMPORT_LAYOUT_TABLE']/value";
+    private static final String GROOVY_CODE_STYLE_SETTINGS = PROJECT_OPTION_XPATH + "/GroovyCodeStyleSettings";
+    private static final String PACKAGE_OPTION_XPATH = PROJECT_OPTION_XPATH + "/option[@name='IMPORT_LAYOUT_TABLE']/value";
 
     @Test public void
     produce_a_component_with_a_name_of_ProjectCodeStyleSettingsManager() throws ParserConfigurationException, IOException, SAXException {
@@ -43,6 +44,12 @@ public class XmlWriterShould {
     produce_a_component_containing_a_suboption_with_a_name_of_IMPORT_LAYOUT_TABLE() {
         xmlProducedBy(noImportLines())
                 .shouldHaveXPath(PACKAGE_OPTION_XPATH);
+    }
+
+    @Test public void
+    produce_a_component_containing_a_groovy_code_settings_block() {
+        xmlProducedBy(noImportLines())
+            .shouldHaveXPath(GROOVY_CODE_STYLE_SETTINGS);
     }
 
     @Test public void

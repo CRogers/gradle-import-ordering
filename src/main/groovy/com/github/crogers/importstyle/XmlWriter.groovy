@@ -15,26 +15,35 @@ public class XmlWriter {
             NodeBuilder builder = new NodeBuilder()
             Node res = builder.component(name: "ProjectCodeStyleSettingsManager") {
                 option(name: 'PER_PROJECT_SETTINGS') {
-                    value() {
-                        if  (settings.classCountToImportStar.present) {
-                            option(name: 'CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND', value: settings.classCountToImportStar.get())
-                        }
-                        if  (settings.nameCountToStaticImportStar.present) {
-                            option(name: 'NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND', value: settings.nameCountToStaticImportStar.get())
-                        }
-                        option(name: 'IMPORT_LAYOUT_TABLE') {
-                            value() {
-                                for (ImportLine importLine : settings.importOrdering) {
-                                    'package'(name: importLine.asString(), withSubpackages: importLine.withSubpackages().asBoolean(), static: importLine.static)
-                                }
-                            }
-                        }
-                    }
+                    value blah(true, settings)
+                        //GroovyCodeStyleSettings(blah(settings))
                 }
                 option(name: 'USE_PER_PROJECT_SETTINGS', value: 'true')
             }
 
             xml.asNode().append(res)
+        }
+    }
+
+    private Closure blah(boolean java, Settings settings) {
+        return {
+            if (settings.classCountToImportStar.present) {
+                option(name: 'CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND', value: settings.classCountToImportStar.get())
+            }
+
+            if (settings.nameCountToStaticImportStar.present) {
+                option(name: 'NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND', value: settings.nameCountToStaticImportStar.get())
+            }
+            option(name: 'IMPORT_LAYOUT_TABLE') {
+                value() {
+                    for (ImportLine importLine : settings.importOrdering) {
+                        'package'(name: importLine.asString(), withSubpackages: importLine.withSubpackages().asBoolean(), static: importLine.static)
+                    }
+                }
+            }
+            if (java) {
+                GroovyCodeStyleSettings() //blah(false, settings))
+            }
         }
     }
 }
