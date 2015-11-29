@@ -25,8 +25,10 @@ import static org.xmlmatchers.xpath.XpathReturnType.returningAnXmlNode;
 public class XmlWriterShould {
     private static final String COMPONENT_XPATH = "/project/component[@name='ProjectCodeStyleSettingsManager']";
     private static final String PROJECT_OPTION_XPATH = COMPONENT_XPATH + "/option[@name='PER_PROJECT_SETTINGS']/value";
+    private static final String IMPORT_LAYOUT_TABLE = "/option[@name='IMPORT_LAYOUT_TABLE']/value";
+    private static final String JAVA_PACKAGE_OPTION_XPATH = PROJECT_OPTION_XPATH + IMPORT_LAYOUT_TABLE;
     private static final String GROOVY_CODE_STYLE_SETTINGS = PROJECT_OPTION_XPATH + "/GroovyCodeStyleSettings";
-    private static final String PACKAGE_OPTION_XPATH = PROJECT_OPTION_XPATH + "/option[@name='IMPORT_LAYOUT_TABLE']/value";
+    private static final String GROOVY_PACKAGE_OPTION_PATH = GROOVY_CODE_STYLE_SETTINGS + IMPORT_LAYOUT_TABLE;
 
     @Test public void
     produce_a_component_with_a_name_of_ProjectCodeStyleSettingsManager() throws ParserConfigurationException, IOException, SAXException {
@@ -43,7 +45,7 @@ public class XmlWriterShould {
     @Test public void
     produce_a_component_containing_a_suboption_with_a_name_of_IMPORT_LAYOUT_TABLE() {
         xmlProducedBy(noImportLines())
-                .shouldHaveXPath(PACKAGE_OPTION_XPATH);
+                .shouldHaveXPath(JAVA_PACKAGE_OPTION_XPATH);
     }
 
     @Test public void
@@ -135,7 +137,7 @@ public class XmlWriterShould {
     }
 
     private String packageWithName(String name) {
-        return PACKAGE_OPTION_XPATH + "/package[@name='" + name +"'][@withSubpackages='true'][@static='false']";
+        return JAVA_PACKAGE_OPTION_XPATH + "/package[@name='" + name +"'][@withSubpackages='true'][@static='false']";
     }
 
     private static class XmlProducedBy {
@@ -163,7 +165,14 @@ public class XmlWriterShould {
 
         public void shouldHavePackageXmlEquivalentTo(String... packageXmls) {
             String packageXml = Joiner.on("").join(packageXmls);
-            assertThat(xmlDocument, hasXPath(PACKAGE_OPTION_XPATH, returningAnXmlNode(), equivalentTo(xml("<value>" + packageXml + "</value>"))));
+            Source bracketedXml = bracket("value", packageXml);
+            assertThat(xmlDocument, hasXPath(JAVA_PACKAGE_OPTION_XPATH, returningAnXmlNode(), equivalentTo(bracketedXml)));
+            assertThat(xmlDocument, hasXPath(GROOVY_PACKAGE_OPTION_PATH, returningAnXmlNode(), equivalentTo(bracketedXml)));
+        }
+
+        private Source bracket(String nodeName, String internals) {
+            String xmlString = String.format("<%s>%s</%s>", nodeName, internals, nodeName);
+            return xml(xmlString);
         }
     }
 

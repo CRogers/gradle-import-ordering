@@ -42,7 +42,7 @@ public class XmlWriter {
                 }
             }
             if (java) {
-                GroovyCodeStyleSettings() //blah(false, settings))
+                GroovyCodeStyleSettings(blah(false, settings))
             }
         }
     }
