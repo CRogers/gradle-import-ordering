@@ -1,10 +1,8 @@
 package com.github.crogers.importstyle
-
 import com.google.common.collect.ImmutableList
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.codeStyle.PackageEntry
 import groovy.transform.CompileStatic
-import groovy.transform.TypeCheckingMode
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.hamcrest.Matcher
@@ -18,16 +16,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-import javax.xml.transform.Source
-
 import static com.github.crogers.importstyle.PackageEntryMatchers.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.contains
-import static org.xmlmatchers.XmlMatchers.equivalentTo
 import static org.xmlmatchers.XmlMatchers.hasXPath
 import static org.xmlmatchers.transform.XmlConverters.the
-import static org.xmlmatchers.transform.XmlConverters.xml
-import static org.xmlmatchers.xpath.XpathReturnType.returningAnXmlNode
 
 @CompileStatic
 public class ImportOrderingPluginShould {
@@ -91,7 +84,9 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThatIprHasPackages("<package name='foo.bar' withSubpackages='true' static='false'/>");
+        assertThatIprHasPackages(
+            package_(named('foo.bar'), withSubpackages(), notStatic())
+        )
     }
 
     @Test
@@ -107,10 +102,10 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThatIprHasPackages("""
-            <package name='foo.bar' withSubpackages='true' static='false'/>
-            <package name='baz.quux' withSubpackages='true' static='false'/>
-        """);
+        assertThatIprHasPackages(
+            package_(named('foo.bar'), withSubpackages(), notStatic()),
+            package_(named('baz.quux'), withSubpackages(), notStatic())
+        )
     }
 
     @Test
@@ -125,7 +120,9 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThatIprHasPackages("<package name='some.static.thing' withSubpackages='true' static='true'/>")
+        assertThatIprHasPackages(
+            package_(named('some.static.thing'), withSubpackages(), isStatic())
+        )
     }
 
     @Test
@@ -140,7 +137,9 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThatIprHasPackages("<package name='javax.awt' withSubpackages='false' static='false'/>")
+        assertThatIprHasPackages(
+            package_(named('javax.awt'), withoutSubpackages(), notStatic())
+        )
     }
 
     @Test
@@ -155,7 +154,9 @@ public class ImportOrderingPluginShould {
 
         buildIdeaProject()
 
-        assertThatIprHasPackages("<package name='bat.man' withSubpackages='false' static='true'/>")
+        assertThatIprHasPackages(
+            package_(named('bat.man'), withoutSubpackages(), isStatic())
+        )
     }
 
     @Test
@@ -247,12 +248,6 @@ public class ImportOrderingPluginShould {
         println result.standardOutput
     }
 
-    private void assertThatIprHasPackages(String packages) {
-        Source packageXml = xml("<value>${packages}</value>")
-        assertThat(the(iprFile()), hasXPathReturningAnXmlNode(
-                PER_PROJECT_SETTINGS_XPATH + "/option[@name='IMPORT_LAYOUT_TABLE']/value", equivalentTo(packageXml)));
-    }
-
     private void assertThatIprHasPackages(Matcher<PackageEntry>... packageEntryMatchers) {
         Document doc = new SAXBuilder().build(iprFileLocation());
         Element el = (Element) XPath.newInstance(PER_PROJECT_SETTINGS_XPATH).selectSingleNode(doc);
@@ -265,11 +260,6 @@ public class ImportOrderingPluginShould {
             .add(package_(named("<blank line>")))
             .add(package_(named("<all other static imports>")))
             .build()));
-    }
-
-    @CompileStatic(TypeCheckingMode.SKIP)
-    private Matcher<Source> hasXPathReturningAnXmlNode(String xpath, Matcher<Source> matcher) {
-        return hasXPath(xpath, returningAnXmlNode(), matcher)
     }
 
     private String iprFile() {
