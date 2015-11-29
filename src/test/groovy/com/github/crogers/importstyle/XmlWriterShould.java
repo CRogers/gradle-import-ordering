@@ -105,7 +105,7 @@ public class XmlWriterShould {
         Settings settings = settingsWithClassCount(Optional.empty());
 
         xmlProducedBy(settings)
-            .shouldNotHaveXPath(PROJECT_OPTION_XPATH + "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND']");
+            .shouldNotHaveClassCount();
     }
 
     @Test public void
@@ -163,7 +163,11 @@ public class XmlWriterShould {
             return this;
         }
 
-
+        public void shouldNotHaveClassCount() {
+            String xPath = "/option[@name='CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND']";
+            shouldNotHaveXPath(PROJECT_OPTION_XPATH + xPath);
+            shouldNotHaveXPath(GROOVY_CODE_STYLE_SETTINGS + xPath);
+        }
 
         public XmlProducedBy shouldHaveNameCountToUseImportOnDemand(int number) {
             String xPath = "/option[@name='NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND'][@value='" + number + "']";
